@@ -1,3 +1,4 @@
+using Plots
 direction_dict = Dict{String,Array{Int}}(
     "R" => [1,0],
     "L" => [-1, 0],
@@ -21,22 +22,16 @@ end
 
 
 function get_tail_position(head_pos, tail_pos)
-     if abs(head_pos[1] == tail_pos[1]) && abs(head_pos[2] - tail_pos[2]) > 1
-        diff = head_pos[2] - tail_pos[2]
-        head_pos[1], head_pos[2]-sign(diff)
-    elseif  abs(head_pos[2] == tail_pos[2]) && abs(head_pos[1] - tail_pos[1]) > 1
-        diff = head_pos[1] - tail_pos[1]
-        head_pos[1]-sign(diff), head_pos[2]
-    elseif  abs(head_pos[1]-tail_pos[1]) > 1 && abs(head_pos[2]-tail_pos[2]) > 1 
-        diff_x = head_pos[1] - tail_pos[1]
-        diff_y = head_pos[2] - tail_pos[2]
-        head_pos[1]-sign(diff_x), head_pos[2]-sign(diff_y)
-    elseif  abs(head_pos[1]-tail_pos[1]) > 1
-        diff = head_pos[1] - tail_pos[1]
-        head_pos[1]-sign(diff), head_pos[2]
-    elseif abs(head_pos[2]-tail_pos[2]) > 1 
-        diff = head_pos[2] - tail_pos[2]
-        head_pos[1], head_pos[2]-sign(diff)
+    diff_x = head_pos[1] - tail_pos[1]
+    diff_y = head_pos[2] - tail_pos[2]
+    if abs(diff_x) > 1 || abs(diff_y) > 1 
+        if diff_x == 0
+            tail_pos[1], tail_pos[2]+sign(diff_y)
+        elseif  diff_y == 0
+            tail_pos[1]+sign(diff_x), tail_pos[2]
+        else
+            tail_pos[1]+sign(diff_x), tail_pos[2]+sign(diff_y) 
+        end
     else
         tail_pos
     end 
