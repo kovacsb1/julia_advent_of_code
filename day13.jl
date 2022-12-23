@@ -25,49 +25,36 @@ function parse_line(line)
     levels[1]
 end
 
-function comp_ord(left, right)
-    if left == right
-        return false
-    else 
-        return compare_order(left, right)
-    end
-end
-
+# returns negative number if left is bigger, 0 if equal 
+# and positive number if right is bigger
 function compare_order(left, right)
+    if left isa Number && right isa Number
+        return right-left
+    end
+
+    if left isa Array && right isa Number
+        right = [right] 
+    elseif right isa Array && left isa Number
+        left = [left]
+    end
+
     for (i1, i2) in zip(left, right)
-        if i1 isa Number && i2 isa Number
-            if i1 != i2 
-                return i1 < i2
-            else 
-                continue
-            end 
-        end
-
-        if i1 isa Array && i2 isa Number
-            i2 = [i2] 
-        elseif i2 isa Array && i1 isa Number
-            i1 = [i1]
-        end
-
         ord = compare_order(i1, i2)
-        if ~isnothing(ord) 
+        if ord != 0 
             return ord 
         end
     end
-    if length(left) == length(right)
-        return nothing
-    else 
-        return length(left) < length(right)
-    end
+    return  length(right) - length(left)
 end
 
+# from https://gist.github.com/alexholehouse/2624050
 function qsort!(a,lo,hi)
     i, j = lo, hi
     while i < hi
         pivot = a[(lo+hi)>>>1]
         while i <= j
-            while comp_ord(a[i], pivot); i = i+1; end
-            while comp_ord(pivot, a[j]); j = j-1; end
+            while compare_order(a[i], pivot)>0; i = i+1; end
+            while compare_order(pivot, a[j])>0; j = j-1; end
             if i <= j
                 a[i], a[j] = a[j], a[i]
                 i, j = i+1, j-1
@@ -90,7 +77,7 @@ function solution_13_1()
          left = parse_line(l)
          r = split(r, ",")
          right = parse_line(r)
-         if compare_order(left, right)
+         if compare_order(left, right) > 0
             sum+=i
          end
     end
@@ -116,7 +103,7 @@ function solution_13_2()
     push!(lines, i1)
     push!(lines, i2)
     qsort!(lines, 1, length(lines))
-    findall(x->lines[x]==i1, 1:length(lines)), findall(x->lines[x]==i2, 1:length(lines))
+    findall(x->lines[x]==i1, 1:length(lines))[1] * findall(x->lines[x]==i2, 1:length(lines))[1]
 end
 
 println("Solution to task 13-1:", solution_13_1())
